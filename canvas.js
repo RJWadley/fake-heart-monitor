@@ -1,9 +1,49 @@
 "use strict";
+var frameCount = 0;
+var HEARTRATE = 40;
+var FRAMERATE = 60;
+var FREQUENCY = 4;
+var SPEED = 3;
+var FLATLINETIME = 60; //seconds
+var BEEPFREQUENCY = 400;
 
+var alive = true;
+
+
+window.onerror = function(msg, url, linenumber) {
+  alert(
+    "Error message: " + msg + "\nURL: " + url + "\nLine Number: " + linenumber
+  );
+  return true;
+};
+
+
+//sound
+
+var a=new AudioContext() // browsers limit the number of concurrent audio contexts, so you better re-use'em
+
+function beep(vol, freq, duration){
+  var v=a.createOscillator()
+  var u=a.createGain()
+  v.connect(u)
+  v.frequency.value=freq
+  v.type="square"
+  u.connect(a.destination)
+  u.gain.value=vol*0.01
+  v.start(a.currentTime)
+  v.stop(a.currentTime+duration*0.001)
+}
+
+//flatline
+
+function flatLine() {
+    alive = false;
+    setTimeout(function(){beep(1,BEEPFREQUENCY,FLATLINETIME * 1000)},1000)
+}
 
 // Initial Setup
 var canvas = document.querySelector("canvas");
-var c = canvas.getContext("2d");
+var ctx = canvas.getContext("2d");
 
 canvas.width = innerWidth;
 canvas.height = innerHeight;
@@ -16,47 +56,14 @@ var mouse = {
 
 var mouseDown;
 
-switch (randomIntFromRange(0,8)) {
-  case 0:
-    var colors = ["#B7D3F2", "#AFAFDC", "#8A84E2", "#84AFE6", "#79BEEE"];
-    break;
-  case 1:
-    var colors = ["#1A1423", "#60D394", "#AAF683", "#FFD97D", "#FF9B85"];
-    break;
-  case 2:
-    var colors = ["#FFDDE2", "#EFD6D2", "#FF8CC6", "#DE369D", "#6F5E76"];
-    break;
-  case 3:
-    var colors = ["#0FA3B1", "#B5E2FA", "#F9F7F3", "#EDDEA4", "#F7A072"];
-    break;
-  case 4:
-    var colors = ["#CFFCFF", "#AAEFDF", "#9EE37D", "#63C132", "#358600"];
-    break;    
-  case 5:
-    var colors = ["#D72638", "#3F88C5", "#F49D37", "#140F2D", "#F22B29"];
-    break;    
-  case 6:
-    var colors = ["#982649", "#7C8483", "#71A2B6", "#60B2E5", "#53F4FF"];
-    break;      
-  case 7:
-    var colors = ["#1B2F33", "#28502E", "#47682C", "#8C7051", "#EF3054"];
-    break;    
-   case 8:
-    var colors = ["#AF3800", "#FE621D", "#FD5200", "#00CFC1", "#00FFE7"];
-    break;    
-}
-
-
 // Event Listeners
-addEventListener("mousemove", function(event) {
-  mouse.x = event.clientX;
-  mouse.y = event.clientY;
+addEventListener("click", function(event) {
+    flatLine();
 });
 
-addEventListener("touchmove", function(event) {
-  mouse.x = event.touches[0].clientX;
-  mouse.y = event.touches[0].clientY;
-});
+document.onkeypress = function (e) {
+    flatLine();
+};
 
 //prevent left click
 document.addEventListener(
@@ -67,42 +74,13 @@ document.addEventListener(
   false
 );
 
-addEventListener("mousedown", function() {
-  mouseDown = true;
-});
-
-addEventListener("mouseup", function() {
-  mouseDown = false;
-});
-
-addEventListener("touchstart", function() {
-  console.log("touchstart");
-  mouse.x = event.touches[0].clientX;
-  mouse.y = event.touches[0].clientY;
-  mouseDown = true;
-});
-
-addEventListener("touchend", function() {
-  console.log("touchend");
-  mouseDown = false;
-});
-
 addEventListener("resize", function() {
   canvas.width = innerWidth;
   canvas.height = innerHeight;
 });
 
-// Utility Functions
-Math.radians = function(degrees) {
-  return degrees * Math.PI / 180;
-};
-
 function randomIntFromRange(min, max) {
   return Math.floor(Math.random() * (max - min + 1) + min);
-}
-
-function randomColor(colors) {
-  return colors[Math.floor(Math.random() * colors.length)];
 }
 
 function distance(x1, y1, x2, y2) {
@@ -112,109 +90,70 @@ function distance(x1, y1, x2, y2) {
   return Math.sqrt(Math.pow(xDist, 2) + Math.pow(yDist, 2));
 }
 
-window.onerror = function(msg, url, linenumber) {
-  document.write(
-    "Error message: " + msg + "\nURL: " + url + "\nLine Number: " + linenumber
-  );
-  return true;
-};
+var points;
 
-// player
-function Player(x, y, radius) {
-  this.dx = 0;
-  this.dy = 0;
-  this.x = x;
-  this.y = y;
-  this.color = colors[randomIntFromRange(0, 4)];
-
-  this.move = function(point, angle, unit) {
-    var x = point[0];
-    var y = point[1];
-    var rad = Math.radians(angle % 360);
-
-    this.dx += unit * Math.sin(rad);
-    this.dy += unit * Math.cos(rad);
-  };
-
-  this.radius = radius;
-}
-
-Player.prototype.update = function() {
-  let thisDistance = distance(this.x, this.y, mouse.x, mouse.y);
-
-  this.dx += (mouse.x - this.x) * (1 / thisDistance) * 0.1;
-  this.dy += (mouse.y - this.y) * (1 / thisDistance) * 0.1;
-
-  this.y += this.dy;
-  this.x += this.dx;
-
-  /*if (this.x < this.radius) {
-    this.x = this.radius;
-  }
-  if (this.x > canvas.width - this.radius) {
-    this.x = canvas.width - this.radius;
-  }
-   if (this.y < this.radius) {
-    this.y = this.radius;
-  }
-  if (this.y > canvas.height - this.radius) {
-    this.y = canvas.height - this.radius;
-  }
-*/
-  this.dy *= 0.999;
-  this.dx *= 0.999;
-
-  this.draw();
-};
-
-Player.prototype.draw = function() {
-  //fill
-  c.beginPath();
-  c.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
-  c.fillStyle = this.color;
-  c.lineWidth = 5;
-  c.fill();
-  c.closePath();
-};
-
-// Implementation
-var playerCollection = void 0;
-
-function newPlayer() {
-  playerCollection.push(
-    new Player(
-      Math.random() * canvas.width,
-      Math.random() * canvas.height,
-      Math.random() * 10
-    )
-  );
+function newPoint() {
+    points.push({x: innerWidth + (FRAMERATE * SPEED), y: (innerHeight / 2 + Math.random() * 10 - 5)})
 }
 
 function init() {
-  playerCollection = [];
+  points = [];
 
-  for (let i = 0; i < 500; i++) {
-    newPlayer();
-  }
+  newPoint();
+  
 }
 
 // Animation Loop
 function animate() {
-  requestAnimationFrame(animate);
-  now = Date.now();
-  elapsed = now - then;
+    requestAnimationFrame(animate);
+    now = Date.now();
+    elapsed = now - then;
 
   // if enough time has elapsed, draw the next frame
 
-  if (elapsed > fpsInterval) {
-    then = now - elapsed % fpsInterval;
+    //alert( elapsed + " " + fpsInterval);
 
-    c.clearRect(0, 0, canvas.width, canvas.height);
+    if (elapsed > fpsInterval || points[0].x > innerWidth) {
+        
+        //alert( elapsed + " drawn " + fpsInterval);
+        //game loop
+        ctx.beginPath();
+        ctx.moveTo(points[0].x, points[0].y);
 
-    playerCollection.forEach(object => {
-      object.update();
-    });
-  }
+        ctx.lineWidth = 15;
+        ctx.lineCap = 'round';
+        ctx.strokeStyle = '#00ff00';
+
+        ctx.clearRect(0,0,canvas.width,canvas.height)
+
+        for (var i = 0; i < points.length; i++) {
+            ctx.lineTo(points[i].x, points[i].y);
+            points[i].x = points[i].x - SPEED;
+        }
+
+        ctx.stroke();
+
+        if ((frameCount % FRAMERATE) % FREQUENCY == 0) {newPoint();}
+        
+
+        if (alive == true && frameCount % (FRAMERATE * 60 / HEARTRATE) == 0 && points[points.length-10] != undefined) {
+            // drawn from right to left
+            var offsets = [-10,10,-30,20,30,-(innerHeight/3),-(innerHeight/3/2),(innerHeight/3/2),(innerHeight/3),(innerHeight/3/3)]
+            for (var i = 10; i > 0; i--) {
+                points[points.length-i].y += offsets[i];
+            }
+            
+            setTimeout(function(){beep(1,BEEPFREQUENCY,100)},((1000/FRAMERATE) * 20))
+        }
+
+        if (points[5] != undefined && points[5].x < 0) {points.shift()}
+
+        frameCount++;
+
+        then = now - (elapsed % fpsInterval);
+
+
+    }
 }
 
 init();
@@ -225,10 +164,11 @@ var fps, fpsInterval, startTime, now, then, elapsed;
 // initialize the timer variables and start the animation
 
 function startAnimating(fps) {
-  fpsInterval = 1000 / fps;
-  then = Date.now();
-  startTime = then;
-  animate();
+    fpsInterval = 1000 / fps;
+    then = Date.now();
+    startTime = then;
+    console.log(startTime);
+    animate();
 }
 
-startAnimating(60);
+startAnimating(FRAMERATE);
