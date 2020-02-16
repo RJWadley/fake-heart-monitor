@@ -27,7 +27,7 @@ function beep(vol, freq, duration){
   var u=a.createGain()
   v.connect(u)
   v.frequency.value=freq
-  v.type="square"
+  v.type="sawtooth"
   u.connect(a.destination)
   u.gain.value=vol*0.01
   v.start(a.currentTime)
