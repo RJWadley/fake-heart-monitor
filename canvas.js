@@ -1,11 +1,11 @@
 "use strict";
 var frameCount = 0;
-var HEARTRATE = 40;
+var HEARTRATE = 30;
 var FRAMERATE = 60;
 var FREQUENCY = 4;
 var SPEED = 3;
 var FLATLINETIME = 60; //seconds
-var BEEPFREQUENCY = 400;
+var BEEPFREQUENCY = 650;
 
 var alive = true;
 
@@ -38,7 +38,7 @@ function beep(vol, freq, duration){
 
 function flatLine() {
     alive = false;
-    setTimeout(function(){beep(1,BEEPFREQUENCY,FLATLINETIME * 1000)},1000)
+    setTimeout(function(){beep(10,BEEPFREQUENCY,FLATLINETIME * 1000)},2000)
 }
 
 // Initial Setup
@@ -140,10 +140,10 @@ function animate() {
             // drawn from right to left
             var offsets = [-10,10,-30,20,30,-(innerHeight/3),-(innerHeight/3/2),(innerHeight/3/2),(innerHeight/3),(innerHeight/3/3)]
             for (var i = 10; i > 0; i--) {
-                points[points.length-i].y += offsets[i];
+                points[points.length-i].y -= offsets[i];
             }
             
-            setTimeout(function(){beep(1,BEEPFREQUENCY,100)},((1000/FRAMERATE) * 20))
+            setTimeout(function(){beep(10,BEEPFREQUENCY,100)},((1000/FRAMERATE) * 20))
         }
 
         if (points[5] != undefined && points[5].x < 0) {points.shift()}
