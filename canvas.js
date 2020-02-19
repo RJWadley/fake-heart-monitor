@@ -138,7 +138,7 @@ function animate() {
 
         if (alive == true && frameCount % (FRAMERATE * 60 / HEARTRATE) == 0 && points[points.length-10] != undefined) {
             // drawn from right to left
-            var offsets = [-10,10,-30,20,30,-(innerHeight/3),-(innerHeight/3/2),(innerHeight/3/2),(innerHeight/3),(innerHeight/3/3)]
+            var offsets = [-10,10,-30,20,30,-(innerHeight/2),-(innerHeight/2/2),(innerHeight/2/2),(innerHeight/2),(innerHeight/2/3)]
             for (var i = 10; i > 0; i--) {
                 points[points.length-i].y -= offsets[i];
             }
