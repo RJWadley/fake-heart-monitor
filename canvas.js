@@ -27,7 +27,7 @@ function beep(vol, freq, duration){
   var u=a.createGain()
   v.connect(u)
   v.frequency.value=freq
-  v.type="sawtooth"
+  v.type="sine"
   u.connect(a.destination)
   u.gain.value=vol*0.01
   v.start(a.currentTime)
@@ -37,8 +37,8 @@ function beep(vol, freq, duration){
 //flatline
 
 function flatLine() {
-    alive = false;
-    setTimeout(function(){beep(10,BEEPFREQUENCY,FLATLINETIME * 1000)},2000)
+    //alive = false;
+    //setTimeout(function(){beep(10,BEEPFREQUENCY,FLATLINETIME * 1000)},2000)
 }
 
 // Initial Setup
