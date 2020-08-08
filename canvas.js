@@ -37,8 +37,8 @@ function beep(vol, freq, duration){
 //flatline
 
 function flatLine() {
-    //alive = false;
-    //setTimeout(function(){beep(10,BEEPFREQUENCY,FLATLINETIME * 1000)},2000)
+    alive = false;
+    setTimeout(function(){beep(10,BEEPFREQUENCY,FLATLINETIME * 1000)},2000)
 }
 
 // Initial Setup
